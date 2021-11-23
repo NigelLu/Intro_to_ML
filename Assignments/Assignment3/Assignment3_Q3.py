@@ -19,7 +19,7 @@ plt.imshow(movie['X'][:, 0].reshape((160, 130)).swapaxes(0, 1), cmap='gray')
 plt.show()
 
 
-def robustPCA(X, delta=2e-8, mu=None, maxiter=500):
+def robustPCA(X, delta=1.5e-8, mu=None, maxiter=500):
 	"""
 	The function should return a PCA like part stored in 'L' with only a few singular values
 	that are non zero and a sparse sequence 'S' in which the images are black except w very
