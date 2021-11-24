@@ -44,7 +44,7 @@ for folder in range(1, 5):
         img_temp = cv2.imread(img)
         img_temp = cv2.resize(img_temp, image_size)
         img_list.append(img_temp)
-        target_list.append(folder)
+        target_list.append(folder-1)
 
 
 def unison_shuffled_copies(a, b):
@@ -77,7 +77,7 @@ print(model.summary())
 
 model.add(layers.Flatten())
 model.add(layers.Dense(10, activation='relu'))
-model.add(layers.Dense(5, activation="softmax"))
+model.add(layers.Dense(4, activation="softmax"))
 print(model.summary())
 
 model.compile(loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
