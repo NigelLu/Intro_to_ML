@@ -49,7 +49,7 @@ history = model.fit(train_images, train_labels, epochs=10,
                     validation_data=(test_images, test_labels))
 
 plt.plot(history.history['accuracy'], label='accuracy')
-plt.plot(history.history['val_accuracy'], label = 'val_accuracy')
+plt.plot(history.history['val_accuracy'], label='val_accuracy')
 plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
 plt.ylim([0.5, 1])

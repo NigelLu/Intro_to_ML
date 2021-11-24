@@ -3,7 +3,7 @@
 from tensorflow.keras.layers import Conv2D
 from tensorflow.keras.models import Sequential
 from tensorflow.keras import layers
-import tensorflow
+import tensorflow as tf
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import numpy as np
@@ -35,44 +35,59 @@ import glob
 # img4 = cv2.resize(img4, (75, 75))
 
 # reading data
+image_size = (100, 100)
 img_list = []
 target_list = []
 for folder in range(1, 5):
     folder_name = str(folder)
     for img in glob.glob(folder_name + "/*.png"):
         img_temp = cv2.imread(img)
-        img_temp = cv2.resize(img_temp, (75, 75))
+        img_temp = cv2.resize(img_temp, image_size)
         img_list.append(img_temp)
         target_list.append(folder)
 
 
-train_image = np.asarray(img_list)
-train_labels = np.asarray(target_list).reshape(-1, 1)
+def unison_shuffled_copies(a, b):
+    assert len(a) == len(b)
+    p = np.random.permutation(len(a))
+    return a[p], b[p]
+
+
+img_list = np.asarray(img_list)
+target_list = np.asarray(target_list).reshape(-1, 1)
+img_list, target_list = unison_shuffled_copies(img_list, target_list)
+
+train_image = np.asarray(img_list[:3500])
+train_labels = np.asarray(target_list[:3500]).reshape(-1, 1)
+
+test_image = np.asarray(img_list[3500:])
+test_labels = np.asarray(target_list[3500:]).reshape(-1, 1)
 
 model = Sequential()
 
-model.add(Conv2D(16, (3, 3), padding='same', input_shape=(75, 75, 3), activation='relu'))
+model.add(Conv2D(16, (3, 3), padding='same', input_shape=(image_size[0], image_size[1], 3), activation='relu'))
 model.add(layers.MaxPooling2D((2, 2), strides=None))
 model.add(layers.Conv2D(32, (3, 3), activation='relu'))
-model.add(layers.MaxPooling2D((2, 2), strides=None))
-model.add(layers.Conv2D(64, (3, 3), activation='relu'))
-model.add(layers.MaxPooling2D((2, 2), strides=None))
-model.add(layers.Conv2D(128, (3, 3), activation='relu'))
+# model.add(layers.MaxPooling2D((2, 2), strides=None))
+# model.add(layers.Conv2D(64, (3, 3), activation='relu'))
+# model.add(layers.MaxPooling2D((2, 2), strides=None))
+# model.add(layers.Conv2D(128, (3, 3), activation='relu'))
+
 print(model.summary())
 
 model.add(layers.Flatten())
-model.add(layers.Dense(4, activation='relu'))
+model.add(layers.Dense(10, activation='relu'))
 model.add(layers.Dense(5, activation="softmax"))
 print(model.summary())
 
-model.compile(loss='SparseCategoricalCrossentropy',
+model.compile(loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
               optimizer="adam",
               metrics=['accuracy'])
 
 batch_size = 32
 epochs = 30
 
-history = model.fit(train_image, train_labels, batch_size=batch_size, epochs=epochs, validation_split=0.2)
+history = model.fit(train_image, train_labels, batch_size=batch_size, epochs=epochs, validation_data=(test_image, test_labels))
 
 plt.plot(history.history['accuracy'], label='accuracy')
 plt.plot(history.history['val_accuracy'], label='val_accuracy')
